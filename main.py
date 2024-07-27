@@ -199,7 +199,7 @@ def Weather(message):
         city = city.lower()
         bot.send_message(message.chat.id, "Bot создан в развлекательных целях. Вся информация берется с сайта " + 
                          f"https://yandex.ru/pogoda/{city} . Телеграмм бот с открытым исходным кодом. Ссылка на GitHub " + 
-                         f"https://github.com/Mike-Belov/TelegramBotWeather.git")  
+                         f"https://github.com/Mike-Belov/TelegramWeather")  
 
     else:
         bot.send_message(message.chat.id, "Не понял вас😩. Повторите")  
