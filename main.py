@@ -91,9 +91,9 @@ try:
 
     user = fake_useragent.UserAgent().random
     header = {'user-agent': user }
-    src = requests.get(LINKWEATHER, headers= header)   
+    src = requests.get(LINKWEATHER)   
     r = src.text 
-    soup = BeautifulSoup(r, "lxml") 
+    soup = BeautifulSoup(r, "html") 
 
 except:
     print("Ошибка подключения")
@@ -126,7 +126,6 @@ for i in range(1, 6):
 
 
 print(WeatherBy)             
-
 
 #keyboard 
 markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
