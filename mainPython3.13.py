@@ -44,23 +44,21 @@ def IP():
         print("Ошибка IP")  
 
 def Weekday(numberweekday):
-    if numberweekday == 0:
-        day = "ПОГОДА В ПОНЕДЕЛЬНИК"
-    elif numberweekday == 1:
-        day = "ПОГОДА ВО ВТОРНИК"
-    elif numberweekday == 2:
-        day = "ПОГОДА В СРЕДУ"
-    elif numberweekday == 3:
-        day = "ПОГОДА В ЧЕТВЕРГ"
-    elif numberweekday == 4:
-        day = "ПОГОДА В ПЯТНИЦУ"
-    elif numberweekday == 5:
-        day = "ПОГОДА В СУББОТУ" 
-    elif numberweekday == 6:
-        day = "ПОГОДА В ВОСКРЕСЕНЬЕ"    
-    else:
-        print("Не удалось получить информацию")                       
-       
+    match numberweekday:
+        case 0:
+            day = "ПОГОДА В ПОНЕДЕЛЬНИК"
+        case 1:
+            day = "ПОГОДА ВО ВТОРНИК"
+        case 2:
+            day = "ПОГОДА В СРЕДУ"
+        case 3:
+            day = "ПОГОДА В ЧЕТВЕРГ"
+        case 4:
+            day = "ПОГОДА В ПЯТНИЦУ"
+        case 5:
+            day = "ПОГОДА В СУББОТУ"
+        case 6:
+            day = "ПОГОДА В ВОСКРЕСЕНИЕ"  
     return day        
 
 def Weather(numberday):
@@ -122,7 +120,7 @@ for i in range(1, 6):
     elif Weather2.find("облачно") >= 0:  
         WeatherBy[i]="☁"   
     elif Weather2.find("пасмурно") >= 0:
-        WeatherBy[i]="☁🌨"    
+        WeatherBy[i]="☁"    
     else:
         WeatherBy[i] = "?" 
 
@@ -139,33 +137,19 @@ btnYesteday = types.KeyboardButton(f"({WeatherBy[2]})ПОГОДА ЗАВТРА")
 year = int(datetime.now().strftime('%Y'))
 month = int(datetime.now().strftime('%m'))
 
-endmonth = 5
-
-try:
-    day1 = datetime(year, month, int(datetime.now().strftime('%d'))+2)
-except:
-    endmonth = endmonth-1
-try:
-    day2 = datetime(year, month, int(datetime.now().strftime('%d'))+3)
-except:
-    endmonth = endmonth-1  
-try:
-    day3 = datetime(year, month, int(datetime.now().strftime('%d'))+4)
-except:
-    endmonth = endmonth-1   
+day1 = datetime(year, month, int(datetime.now().strftime('%d'))+2)
+day2 = datetime(year, month, int(datetime.now().strftime('%d'))+3)
+day3 = datetime(year, month, int(datetime.now().strftime('%d'))+4)
 
 markup.add(btnToday, btnYesteday, btnInformation)        
 
-for i in range(2, endmonth):
-    try:
-        daytoday = int(datetime.now().strftime('%d'))+i
-        day = datetime(year, month, daytoday)
-        day = day.weekday()
-    
-        btn = types.KeyboardButton(f"({WeatherBy[i+1]}){Weekday(day)}")       
-        markup.add(btn) 
-    except:
-        print("Погода будет известна через несколько дней")    
+for i in range(2, 5):
+    daytoday = int(datetime.now().strftime('%d'))+i
+    day = datetime(year, month, daytoday)
+    day = day.weekday()
+
+    btn = types.KeyboardButton(f"({WeatherBy[i+1]}){Weekday(day)}")       
+    markup.add(btn) 
 
 @bot.message_handler(commands=['start'])
 def Hello(message):
@@ -217,6 +201,6 @@ def Weather(message):
                          f"https://github.com/Mike-Belov/TelegramWeather")  
 
     else:
-        bot.send_message(message.chat.id, "Не понял вас😩. Повторите")      
+        bot.send_message(message.chat.id, "Не понял вас😩. Повторите")  
 
 bot.polling(True)     
