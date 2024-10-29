@@ -93,9 +93,9 @@ try:
 
     user = fake_useragent.UserAgent().random
     header = {'user-agent': user }
-    src = requests.get(LINKWEATHER)   
+    src = requests.get(LINKWEATHER, headers=header)   
     r = src.text 
-    soup = BeautifulSoup(r, "html") 
+    soup = BeautifulSoup(r, "html.parser") 
 
 except:
     print("Ошибка подключения")
@@ -126,7 +126,6 @@ for i in range(1, 6):
     else:
         WeatherBy[i] = "?" 
 
-
 print(WeatherBy)             
 
 #keyboard 
@@ -140,19 +139,27 @@ year = int(datetime.now().strftime('%Y'))
 month = int(datetime.now().strftime('%m'))
 
 endmonth = 5
+newmoth = 0
 
+try:
+    yesteday = datetime(year, month, int(datetime.now().strftime('%d'))+1)
+except:
+    newmoth += 1
 try:
     day1 = datetime(year, month, int(datetime.now().strftime('%d'))+2)
 except:
     endmonth = endmonth-1
+    newmoth += 1
 try:
     day2 = datetime(year, month, int(datetime.now().strftime('%d'))+3)
 except:
-    endmonth = endmonth-1  
+    endmonth = endmonth-1 
+    newmoth += 1 
 try:
     day3 = datetime(year, month, int(datetime.now().strftime('%d'))+4)
 except:
-    endmonth = endmonth-1   
+    endmonth = endmonth-1  
+    newmoth += 1
 
 markup.add(btnToday, btnYesteday, btnInformation)        
 
@@ -167,6 +174,79 @@ for i in range(2, endmonth):
     except:
         print("Погода будет известна через несколько дней")    
 
+if month+1 > 12:  
+    nextmonth = 1
+    year = int(datetime.now().strftime('%Y'))+1
+else:
+    nextmonth = month+1
+
+if newmoth > 0:
+    if newmoth == 4:
+        day1 = datetime(year, nextmonth, 2)
+        day2 = datetime(year, nextmonth, 3)
+        day3 = datetime(year, nextmonth, 4)
+     
+        for i in range(1, 4):
+            try:
+               daytoday = i+1
+               day = datetime(year, nextmonth, daytoday)
+               day = day.weekday()
+
+               weatherspeed = 3
+            
+               btn = types.KeyboardButton(f"({WeatherBy[weatherspeed]}){Weekday(day)}")     
+               weatherspeed +=1  
+               markup.add(btn) 
+            except:
+               print("Погода будет известна через несколько дней") 
+    elif newmoth == 3:
+        day1 = datetime(year, nextmonth+1, 1)
+        day2 = datetime(year, nextmonth+1, 2)
+        day3 = datetime(year, nextmonth+1, 3)
+
+        for i in range(1, 4):
+            try:
+               daytoday = i
+               day = datetime(year, nextmonth, daytoday)
+               day = day.weekday()
+
+               weatherspeed = 3
+            
+               btn = types.KeyboardButton(f"({WeatherBy[weatherspeed]}){Weekday(day)}")     
+               weatherspeed += 1  
+               markup.add(btn) 
+            except:
+               print("Погода будет известна через несколько дней") 
+    elif newmoth == 2:
+        day2 = datetime(year, nextmonth, 1)
+        day3 = datetime(year, nextmonth, 2)
+
+        for i in range(1, 3):
+            try:
+               daytoday = i
+               day = datetime(year, nextmonth, daytoday)
+               day = day.weekday()
+
+               weatherspeed = 4
+            
+               btn = types.KeyboardButton(f"({WeatherBy[weatherspeed]}){Weekday(day)}")  
+               weatherspeed +=1     
+               markup.add(btn) 
+            except:
+               print("Погода будет известна через несколько дней") 
+    elif newmoth == 1:
+        day3 = datetime(year, nextmonth, 1) 
+        try:
+           daytoday = 1
+           day = datetime(year, nextmonth, daytoday)
+           day = day.weekday()
+        
+           btn = types.KeyboardButton(f"({WeatherBy[5]}){Weekday(day)}")       
+           markup.add(btn) 
+        except:
+           print("Погода будет известна через несколько дней")         
+
+
 @bot.message_handler(commands=['start'])
 def Hello(message):
     bot.send_message(message.chat.id, "Привет, {0.first_name}🤪. Меня зовут {1.first_name}. Если хочешь узнать погоду нажми кнопку ПОГОДА, выбрав день".
@@ -174,49 +254,52 @@ def Hello(message):
     
 @bot.message_handler(content_types=['text'])
 def Weather(message):
-    if message.text == f"({WeatherBy[1]})ПОГОДА СЕГОДНЯ":
-        try:
+    try:
+        if message.text == f"({WeatherBy[1]})ПОГОДА СЕГОДНЯ":
+            try:
+                city = IP()
+                bot.send_message(message.chat.id, parsing(1, message, city))
+            except:
+                error(message)
+    
+        elif message.text == "📃Информация":
             city = IP()
-            bot.send_message(message.chat.id, parsing(1, message, city))
-        except:
-            error(message)
-        
-    elif message.text == f"({WeatherBy[2]})ПОГОДА ЗАВТРА":
-        try:
-            city = IP()
-            bot.send_message(message.chat.id, parsing(2, message, city)) 
-        except:
-            error(message)
-    elif message.text == f"({WeatherBy[3]}){Weekday(day1.weekday())}":
-        try:
-            city = IP()
-            bot.send_message(message.chat.id, parsing(3, message, city)) 
-        except:
-            error(message)
-
-    elif message.text == f"({WeatherBy[4]}){Weekday(day2.weekday())}":
-        try:
-            city = IP()
-            bot.send_message(message.chat.id, parsing(4, message, city)) 
-        except:
-            error(message)
-    elif message.text == f"({WeatherBy[5]}){Weekday(day3.weekday())}":        
-        try:
-            city = IP()
-            bot.send_message(message.chat.id, parsing(5, message, city)) 
-        except:
-            error(message)
-
-    elif message.text == "📃Информация":
-        city = IP()
-        city = city.strip(string.whitespace)
-        city = city.replace(" ", "-")
-        city = city.lower()
-        bot.send_message(message.chat.id, "Bot создан в развлекательных целях. Вся информация берется с сайта " + 
-                         f"https://yandex.ru/pogoda/{city} . Телеграмм бот с открытым исходным кодом. Ссылка на GitHub " + 
-                         f"https://github.com/Mike-Belov/TelegramWeather")  
-
-    else:
-        bot.send_message(message.chat.id, "Не понял вас😩. Повторите")      
+            city = city.strip(string.whitespace)
+            city = city.replace(" ", "-")
+            city = city.lower()
+            bot.send_message(message.chat.id, "Bot создан в развлекательных целях. Вся информация берется с сайта " + 
+                             f"https://yandex.ru/pogoda/{city} . Телеграмм  bot с открытым исходным кодом. Ссылка на GitHub " + 
+                             f"https://github.com/Mike-Belov/TelegramWeather")         
+            
+        elif message.text == f"({WeatherBy[2]})ПОГОДА ЗАВТРА":
+            try:
+                city = IP()
+                bot.send_message(message.chat.id, parsing(2, message, city)) 
+            except:
+                error(message)
+        elif message.text == f"({WeatherBy[3]}){Weekday(day1.weekday())}":
+            try:
+                city = IP()
+                bot.send_message(message.chat.id, parsing(3, message, city)) 
+            except:
+                error(message)
+    
+        elif message.text == f"({WeatherBy[4]}){Weekday(day2.weekday())}":
+            try:
+                city = IP()
+                bot.send_message(message.chat.id, parsing(4, message, city)) 
+            except:
+                error(message)
+        elif message.text == f"({WeatherBy[5]}){Weekday(day3.weekday())}":        
+            try:
+                city = IP()
+                bot.send_message(message.chat.id, parsing(5, message, city)) 
+            except:
+                error(message) 
+    
+        else:
+            bot.send_message(message.chat.id, "Не понял вас😩. Повторите") 
+    except:
+        bot.send_message(message.chat.id, "Не понял вас😩. Повторите")              
 
 bot.polling(True)     
