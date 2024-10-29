@@ -59,7 +59,7 @@ def Weekday(numberweekday):
     elif numberweekday == 6:
         day = "ПОГОДА В ВОСКРЕСЕНЬЕ"    
     else:
-        print("Не удалось получить информацию")                       
+        print("Не удалось получить информацию (смотреть день недели)")                       
        
     return day        
 
@@ -302,4 +302,8 @@ def Weather(message):
     except:
         bot.send_message(message.chat.id, "Не понял вас😩. Повторите")              
 
-bot.polling(True)     
+while 1:
+    try:
+        bot.polling(none_stop=True,timeout=5)
+    except Exception as e:
+        print(e)
