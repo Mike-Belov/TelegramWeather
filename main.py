@@ -5,6 +5,57 @@ from telebot import types
 import string
 from datetime import datetime
 import fake_useragent
+import asyncio
+
+#ассихронная функция для обновления данных
+async def restart():  
+    while True:
+        await asyncio.sleep(3600)
+        await start()
+
+def start():
+    try:
+        city = IP()
+        city = city.lower()
+        city = city.replace(" ", "-") 
+        LINKWEATHER = f"https://yandex.ru/pogoda/{city}"
+    
+        user = fake_useragent.UserAgent().random
+        header = {'user-agent': user }
+        src = requests.get(LINKWEATHER, headers=header)   
+        r = src.text 
+        soup = BeautifulSoup(r, "html.parser") 
+    
+    except:
+        print("Ошибка подключения")
+
+    WeatherBy = {
+        1 : " ",
+        2 : " ",
+        3 : " ",
+        4 : " ",
+        5 : " "
+    }
+    
+    for i in range(1, 6):
+        Weather1 = str(Weather(i))
+        
+        Weather2 = Weather1.lower()
+        print(Weather2)
+    
+        if Weather2.find("дождь") >= 0:  
+            WeatherBy[i]="🌨"
+        elif Weather2.find("ясно") >= 0:  
+            WeatherBy[i]="☀"
+        elif Weather2.find("облачно") >= 0:  
+            WeatherBy[i]="☁"   
+        elif Weather2.find("пасмурно") >= 0:
+            WeatherBy[i]="☁🌨"    
+        else:
+            WeatherBy[i] = "?" 
+    
+    print(WeatherBy)
+    return WeatherBy    
 
 def parsing(numberday, message, city):
     global soup
@@ -84,49 +135,9 @@ TOKEN = "7193616764:AAHFlbGKhwoMH_N0IHvBFmkjrHv3ai6SJ_g"
 bot = telebot.TeleBot(TOKEN)
 
 print("Бот запущен")
-
-try:
-    city = IP()
-    city = city.lower()
-    city = city.replace(" ", "-") 
-    LINKWEATHER = f"https://yandex.ru/pogoda/{city}"
-
-    user = fake_useragent.UserAgent().random
-    header = {'user-agent': user }
-    src = requests.get(LINKWEATHER, headers=header)   
-    r = src.text 
-    soup = BeautifulSoup(r, "html.parser") 
-
-except:
-    print("Ошибка подключения")
-
-
-WeatherBy = {
-    1 : " ",
-    2 : " ",
-    3 : " ",
-    4 : " ",
-    5 : " "
-}
-
-for i in range(1, 6):
-    Weather1 = str(Weather(i))
-    
-    Weather2 = Weather1.lower()
-    print(Weather2)
-
-    if Weather2.find("дождь") >= 0:  
-        WeatherBy[i]="🌨"
-    elif Weather2.find("ясно") >= 0:  
-        WeatherBy[i]="☀"
-    elif Weather2.find("облачно") >= 0:  
-        WeatherBy[i]="☁"   
-    elif Weather2.find("пасмурно") >= 0:
-        WeatherBy[i]="☁🌨"    
-    else:
-        WeatherBy[i] = "?" 
-
-print(WeatherBy)             
+         
+WeatherBy = start()
+asyncio.run(restart())
 
 #keyboard 
 markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -246,7 +257,7 @@ if newmoth > 0:
         except:
            print("Погода будет известна через несколько дней")         
 
-
+#обработчики комад
 @bot.message_handler(commands=['start'])
 def Hello(message):
     bot.send_message(message.chat.id, "Привет, {0.first_name}🤪. Меня зовут {1.first_name}. Если хочешь узнать погоду нажми кнопку ПОГОДА, выбрав день".
